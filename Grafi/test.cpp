@@ -3,10 +3,10 @@
 int main()
 {
     Graph<int> g;
-    Node<int> e1(1);
-    Node<int> e2(2);
-    Node<int> e3(3);
-    Node<int> e4(4);
+    Node<int> *e1 = new Node<int>(1);
+    Node<int> *e2 = new Node<int>(2);
+    Node<int> *e3 = new Node<int>(3);
+    Node<int> *e4 = new Node<int>(4);
 
     g.insNode(e1);
     g.insNode(e2);
