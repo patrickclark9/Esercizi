@@ -47,7 +47,7 @@ private:
     int length;
 
 public:
-    LinkedList<V> &operator=(LinkedList<V> &);
+    LinkedList<V> &operator=(const LinkedList<V> &);
     LinkedList()
     {
         head = new ListNode<V>;
@@ -186,9 +186,9 @@ public:
 };
 
 template <class V>
-LinkedList<V> &LinkedList<V>::operator=(LinkedList<V> &L)
+LinkedList<V> &LinkedList<V>::operator=(const LinkedList<V> &L)
 {
-    if (this != L)
+    if (this != &L)
     {
         length = L.size();
         head = new ListNode<V>;

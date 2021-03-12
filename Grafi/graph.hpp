@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include "list copy.hpp"
+#include "list.hpp"
 #include "coda.hpp"
 using std::vector;
 
@@ -43,12 +43,12 @@ public:
         return label;
     }
 
-    bool isAdj(Node<G> L)
+    bool isAdj(Node<G> *L)
     {
         ListNode<Node<G> *> *temp = adj->begin();
         while (!adj->end(temp))
         {
-            if (L.getLabel() == adj->read(temp)->getLabel())
+            if (L->getLabel() == adj->read(temp)->getLabel())
             {
                 return true;
             }
@@ -113,13 +113,13 @@ class Graph
 private:
     int nrOfEdge;
     int nrOfNodes;
-    LinkedList<Node<G> > *nodeList;
+    LinkedList<Node<G> *> *nodeList;
     vector<Arc<G> > *Arcs;
 
 public:
     Graph()
     {
-        nodeList = new LinkedList<Node<G> >;
+        nodeList = new LinkedList<Node<G> *>;
         Arcs = new vector<Arc<G> >;
         nrOfEdge = 0;
         nrOfNodes = 0;
@@ -140,7 +140,7 @@ public:
         return false;
     }
 
-    bool nodeFound(Node<G> L)
+    bool nodeFound(Node<G> *L)
     {
         ListNode<Node<G> > *temp = new ListNode<Node<G> >;
         temp = nodeList->begin();
@@ -160,33 +160,30 @@ public:
         return false;
     }
 
-    void insNode(Node<G> L)
+    void insNode(Node<G> *L)
     {
         nrOfNodes++;
         nodeList->insert(L, nodeList->begin());
     }
 
-    void insEdge(Node<G> L, Node<G> N)
+    void insEdge(Node<G> *L, Node<G> *N)
     {
-        if (nodeFound(L) && nodeFound(N))
-        {
-            Node<G> *temp = new Node<G>;
-            temp = &N;
-            L.setAdj(temp);
-            nrOfEdge++;
-        }
+        Node<G> *temp = new Node<G>;
+        temp = N;
+        L->setAdj(temp);
+        nrOfEdge++;
     }
 
-    void removeNode(Node<G> L)
+    void removeNode(Node<G> *L)
     {
-        if (L.getAdj()->empty())
+        if (L->getAdj()->empty())
         {
-            ListNode<Node<G> > *temp = nodeList->begin();
+            ListNode<Node<G> *> *temp = nodeList->begin();
             bool flag = false;
             for (int i = 0; i < nodeList->size(); i++)
             {
-                Node<G> temp2 = temp->getValue();
-                if (temp2.isAdj(L))
+                Node<G> *temp2 = temp->getValue();
+                if (temp2->isAdj(L))
                 {
                     std::cout << "Node is adjacent to another node: cannot delete" << std::endl;
                     flag = false;
@@ -200,7 +197,7 @@ public:
                 temp = nodeList->begin();
                 while (!nodeList->end(temp))
                 {
-                    if (L.getLabel() == temp->getValue().getLabel())
+                    if (L->getLabel() == temp->getValue()->getLabel())
                     {
                         nodeList->erase(temp);
                         nrOfNodes--;
@@ -216,18 +213,18 @@ public:
         }
     }
 
-    void removeEdge(Node<G> L, Node<G> N)
+    void removeEdge(Node<G> *L, Node<G> *N)
     {
-        if (!L.getAdj()->empty())
+        if (!L->getAdj()->empty())
         {
-            if (L.isAdj(N))
+            if (L->isAdj(N))
             {
-                ListNode<Node<G> *> *temp = L.getAdj()->begin();
-                while (!L.getAdj()->end(temp))
+                ListNode<Node<G> *> *temp = L->getAdj()->begin();
+                while (!L->getAdj()->end(temp))
                 {
-                    if (N.getLabel() == temp->getValue()->getLabel())
+                    if (N->getLabel() == temp->getValue()->getLabel())
                     {
-                        L.getAdj()->erase(temp);
+                        L->getAdj()->erase(temp);
                         std::cout << "Arc Removed" << std::endl;
                         break;
                     }
@@ -241,18 +238,18 @@ public:
         }
     }
 
-    bool isReachable(Node<G> start, Node<G> dest)
+    bool isReachable(Node<G> *start, Node<G> *dest)
     {
-        ListNode<Node<G> > *lnode = nodeList->begin();
+        ListNode<Node<G> *> *lnode = nodeList->begin();
         while (!nodeList)
         {
-            lnode->getValue().setUnvisited();
+            lnode->getValue()->setUnvisited();
             lnode->getNext();
         }
 
         Coda<Node<G> *> q;
-        Node<G> *temp = &start;
-        Node<G> *destination = &dest;
+        Node<G> *temp = start;
+        Node<G> *destination = dest;
         q.inCoda(temp);
         while (!q.codaVuota())
         {
@@ -273,6 +270,10 @@ public:
                     {
                         node->getValue()->setVisited();
                         q.inCoda(node->getValue());
+                    }
+                    else
+                    {
+                        node = node->getNext();
                     }
                 }
             }
