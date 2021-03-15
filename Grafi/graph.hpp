@@ -2,6 +2,7 @@
 #include <vector>
 #include "list.hpp"
 #include "coda.hpp"
+#include "stack.hpp"
 using std::vector;
 
 template <class G>
@@ -74,6 +75,15 @@ public:
         return false;
     }
 };
+
+template <class G>
+std::ostream &operator<<(std::ostream &os, const Node<G> &N)
+{
+    os << "[";
+    os << " " << N.getLabel();
+    os << "]";
+    return os;
+}
 template <class G>
 class Arc
 {
@@ -114,13 +124,12 @@ private:
     int nrOfEdge;
     int nrOfNodes;
     LinkedList<Node<G> *> *nodeList;
-    vector<Arc<G> > *Arcs;
+    vector<Arc<Node<G> *> *> *Arcs;
 
 public:
     Graph()
     {
         nodeList = new LinkedList<Node<G> *>;
-        Arcs = new vector<Arc<G> >;
         nrOfEdge = 0;
         nrOfNodes = 0;
     }
@@ -280,6 +289,69 @@ public:
         }
         std::cout << "There is no Path leading from starting node to destination node" << std::endl;
         return false;
+    }
+
+    Coda<Node<G> *> simplePath(Node<G> *start, Node<G> *end)
+    {
+        ListNode<Node<G> *> *lnode = nodeList->begin();
+        while (!nodeList)
+        {
+            lnode->getValue()->setUnvisited();
+            lnode->getNext();
+        }
+
+        Stack<Node<G> *> p;
+        Node<G> *temp = start;
+        Node<G> *destination = end;
+        Coda<Node<G> *> resq;
+        p.inPila(temp);
+        while (!p.pilaVuota())
+        {
+            temp = p.leggiPila();
+            if(temp->isVisited())
+            {
+                std::cout << "cycle found" << std::endl;
+                break;
+            }
+            temp->setVisited();
+            resq.inCoda(temp);
+            p.Pop();
+            ListNode<Node<G> *> *node = temp->getAdj()->begin();
+            {
+                while (!temp->getAdj()->end(node))
+                {
+                    if (node->getValue() == destination)
+                    {
+                        std::cout << "is Reachable" << std::endl;
+                        return resq;
+                    }
+                    else
+                    {
+                        if (node->getValue()->isVisited() == false)
+                        {
+                            p.inPila(node->getValue());
+                        }
+                        else
+                        {
+                            node = node->getNext();
+                        }
+                    }
+                }
+            }
+        }
+        std::cout << "There is no Simple Path" << std::endl;
+        return NULL;
+    }
+
+    void print(Node<G> *start, Node<G> *end)
+    {
+        Coda<Node<G> *> q = simplePath(start, end);
+        int j = q.getSize();
+        while (!q.codaVuota())
+        {
+            std::cout << " " << q.getFront() << std::endl;
+            q.fuoriCoda();
+        }
     }
 };
 template <class G>

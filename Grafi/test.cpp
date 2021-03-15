@@ -18,9 +18,10 @@ int main()
     g.insEdge(e2, e4);
     g.insEdge(e2, e3);
     g.removeNode(e4);
-    g.removeEdge(e2, e3);
+
     g.isReachable(e1, e3);
-    g.removeEdge(e1, e2);
+    g.isReachable(e1, e2);
+    g.print(e1,e3);
 
     return 0;
 }
