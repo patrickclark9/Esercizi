@@ -2,109 +2,7 @@
 #include <vector>
 #include "list.hpp"
 #include "coda.hpp"
-using std::vector;
-
-template <class G>
-class Node
-{
-    G label;
-    LinkedList<Node<G> *> *adj;
-    bool visited;
-
-public:
-    Node()
-    {
-        adj = new LinkedList<Node<G> *>;
-        visited = false;
-    }
-    Node(G value)
-    {
-        label = value;
-        adj = new LinkedList<Node<G> *>;
-        visited = false;
-    }
-    LinkedList<Node<G> *> *getAdj()
-    {
-        return adj;
-    }
-
-    void setAdj(Node<G> *L)
-    {
-        adj->insert(L, adj->begin());
-    }
-
-    void setLabel(G value)
-    {
-        label = value;
-    }
-
-    G getLabel() const
-    {
-        return label;
-    }
-
-    bool isAdj(Node<G> *L)
-    {
-        ListNode<Node<G> *> *temp = adj->begin();
-        while (!adj->end(temp))
-        {
-            if (L->getLabel() == adj->read(temp)->getLabel())
-            {
-                return true;
-            }
-            temp = temp->getNext();
-        }
-        return false;
-    }
-
-    void setVisited()
-    {
-        visited = true;
-    }
-    void setUnvisited()
-    {
-        visited = false;
-    }
-    bool isVisited()
-    {
-        if (visited == true)
-        {
-            return true;
-        }
-        return false;
-    }
-};
-template <class G>
-class Arc
-{
-private:
-    Node<G> Arcs[2];
-
-public:
-    Arc(Node<G> n, Node<G> m)
-    {
-        Arcs[0] = n;
-        Arcs[1] = m;
-    }
-    void insertArc(Node<G> n, Node<G> m)
-    {
-        Arcs[0] = n;
-        Arcs[1] = m;
-    }
-
-    Node<G> getArc()
-    {
-        return Arcs[2];
-    }
-    Node<G> getFirst()
-    {
-        return Arcs[0];
-    }
-    Node<G> getSecond()
-    {
-        return Arcs[1];
-    }
-};
+#include "Node.hpp"
 
 template <class G>
 class Graph
@@ -114,13 +12,11 @@ private:
     int nrOfEdge;
     int nrOfNodes;
     LinkedList<Node<G> *> *nodeList;
-    vector<Arc<G> > *Arcs;
 
 public:
     Graph()
     {
         nodeList = new LinkedList<Node<G> *>;
-        Arcs = new vector<Arc<G> >;
         nrOfEdge = 0;
         nrOfNodes = 0;
     }
@@ -128,7 +24,6 @@ public:
     ~Graph()
     {
         delete nodeList;
-        delete Arcs;
     }
 
     bool empty()
@@ -238,23 +133,25 @@ public:
         }
     }
 
-    bool isReachable(Node<G> *start, Node<G> *dest)
+    bool isReachable(Node<G> *start, Node<G> *dest) // only simple paths
     {
         ListNode<Node<G> *> *lnode = nodeList->begin();
-        while (!nodeList)
+        while (!nodeList->end(lnode))
         {
             lnode->getValue()->setUnvisited();
-            lnode->getNext();
+            lnode = lnode->getNext();
         }
 
         Coda<Node<G> *> q;
         Node<G> *temp = start;
         Node<G> *destination = dest;
+        Coda<Node<G> *> resq;
         q.inCoda(temp);
         while (!q.codaVuota())
         {
             temp = q.getFront();
             temp->setVisited();
+            resq.inCoda(temp);
             q.fuoriCoda();
             ListNode<Node<G> *> *node = temp->getAdj()->begin();
             while (!temp->getAdj()->end(node))
@@ -262,6 +159,8 @@ public:
                 if (node->getValue() == destination)
                 {
                     std::cout << "is Reachable" << std::endl;
+                    resq.inCoda(node->getValue());
+                    std::cout << resq << std::endl;
                     return true;
                 }
                 else
@@ -278,7 +177,68 @@ public:
                 }
             }
         }
-        std::cout << "There is no Path leading from starting node to destination node" << std::endl;
+        std::cout << "There is no simple Path leading from starting node to destination node" << std::endl;
+        return false;
+    }
+
+    bool graphPath(Node<G> *start, Node<G> *dest, int k) // only simple paths
+    {
+        ListNode<Node<G> *> *lnode = nodeList->begin();
+        while (!nodeList)
+        {
+            lnode->getValue()->setUnvisited();
+            lnode = lnode->getNext();
+        }
+
+        Coda<Node<G> *> q;
+        Node<G> *temp = start;
+        Node<G> *destination = dest;
+        Coda<Node<G> *> resq;
+        q.inCoda(temp);
+        while (!q.codaVuota())
+        {
+            temp = q.getFront();
+            temp->setVisited();
+            resq.inCoda(temp);
+            q.fuoriCoda();
+            ListNode<Node<G> *> *node = temp->getAdj()->begin();
+            while (!temp->getAdj()->end(node))
+            {
+                if (node->getValue() == destination)
+                {
+                    resq.inCoda(node->getValue());
+                    int sum = 0;
+                    while (!resq.codaVuota())
+                    {
+                        sum = sum + resq.getFront()->getLabel();
+                        resq.fuoriCoda();
+                    }
+                    if (sum < k)
+                    {
+                        std::cout << "The sum of the labels is less than K" << std::endl;
+                        return true;
+                    }
+                    else
+                    {
+                        std::cout << "The sum of the labels is greater than K" << std::endl;
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (!node->getValue()->isVisited())
+                    {
+                        node->getValue()->setVisited();
+                        q.inCoda(node->getValue());
+                    }
+                    else
+                    {
+                        node = node->getNext();
+                    }
+                }
+            }
+        }
+        std::cout << "There is no simple Path leading from starting node to destination node" << std::endl;
         return false;
     }
 };
