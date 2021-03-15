@@ -21,7 +21,7 @@ int main()
 
     g.isReachable(e1, e3);
     g.isReachable(e1, e2);
-    g.print(e1,e3);
+    g.graphPath(e1, e3, 10);
 
     return 0;
 }
