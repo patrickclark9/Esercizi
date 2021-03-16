@@ -13,8 +13,8 @@ int main()
     g.insNode(e3);
     g.insNode(e4);
 
-    g.insEdge(e1, e2);
-    g.insEdge(e3, e4);
+    g.insEdge(e1, e3);
+    g.insEdge(e3, e2);
     g.insEdge(e2, e4);
     g.insEdge(e2, e3);
     g.removeNode(e4);

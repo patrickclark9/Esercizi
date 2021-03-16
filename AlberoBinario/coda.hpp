@@ -130,5 +130,17 @@ void Coda<T>::inCoda(tipoelem e)
         size++;
     }
 }
+template <class T>
+std::ostream &operator<<(std::ostream &os, Coda<T> &C)
+{
+    os << "[";
+    while (!C.codaVuota())
+    {
+        os << C.getFront();
+        C.fuoriCoda();
+    }
+    os << "]" << std::endl;
+    return os;
+}
 
 #endif /*CODA_H*/
